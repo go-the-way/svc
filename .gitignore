@@ -19,3 +19,6 @@
 
 # Go workspace file
 go.work
+*.iml
+.idea
+*_test.go
