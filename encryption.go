@@ -12,7 +12,7 @@ import (
 )
 
 func Encryption() gin.HandlerFunc {
-	encryptEnable := os.Getenv("ENCRYPT_ENABLE") == "T"
+	encryptEnable := os.Getenv("ENCRYPT_ENABLE") == "F"
 	return func(ctx *gin.Context) {
 		if encryptEnable {
 			encryption := strings.EqualFold(ctx.Request.Header.Get("Encryption"), "Yes")
