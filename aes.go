@@ -22,8 +22,7 @@ func AesEncrypt(plainText []byte) (string, error) {
 		return "", err
 	}
 	cipherText := make([]byte, len(plainText))
-	iv := make([]byte, aes.BlockSize)
-	stream := cipher.NewCTR(block, iv)
+	stream := cipher.NewCTR(block, key)
 	stream.XORKeyStream(cipherText, plainText)
 	return base64.StdEncoding.EncodeToString(cipherText[:]), nil
 }
@@ -39,8 +38,7 @@ func AesDecrypt(cipherBytes []byte) ([]byte, error) {
 		return nil, err
 	}
 	plainText := make([]byte, len(decodeText))
-	iv := make([]byte, aes.BlockSize)
-	stream := cipher.NewCTR(block, iv)
-	stream.XORKeyStream(plainText, decodeText)
+	stream := cipher.NewCTR(block, key)
+	stream.XORKeyStream(plainText, decodeText[:])
 	return plainText, nil
 }
