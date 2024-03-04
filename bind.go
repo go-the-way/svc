@@ -108,7 +108,7 @@ func do[REQ, RESP any](ctx *gin.Context, req REQ, bindFunc bindFunc[REQ], valida
 				case respTypeKind == reflect.String: // for func() (str string, err error)
 					respStr := fmt.Sprintf("%v", resp)
 					if encrypt {
-						encryptStr, _ := Encrypt([]byte(respStr))
+						encryptStr, _ := AesEncrypt([]byte(respStr))
 						ctx.String(http.StatusOK, encryptStr)
 					} else {
 						ctx.String(http.StatusOK, respStr)
@@ -153,7 +153,7 @@ func haveEncryptionData(ctx *gin.Context, dataType string) bool {
 	{
 		if value, ok := ctx.Get("have_encryption_data"); ok {
 			if data, okk := value.(string); okk {
-				if data == "yes" {
+				if data == "Yes" {
 					b1 = true
 				}
 			}
@@ -172,7 +172,7 @@ func haveEncryptionData(ctx *gin.Context, dataType string) bool {
 }
 
 func bindQuery[REQ any](ctx *gin.Context, req *REQ) (err error) {
-	if haveEncryptionData(ctx, "query") {
+	if haveEncryptionData(ctx, "Query") {
 		if value, ok := ctx.Get("encryption_data"); ok {
 			if values, okk := value.(url.Values); okk {
 				return mapForm(req, values)
@@ -183,7 +183,7 @@ func bindQuery[REQ any](ctx *gin.Context, req *REQ) (err error) {
 }
 
 func bindJSON[REQ any](ctx *gin.Context, req *REQ) (err error) {
-	if haveEncryptionData(ctx, "body") {
+	if haveEncryptionData(ctx, "Body") {
 		if value, ok := ctx.Get("encryption_data"); ok {
 			if values, okk := value.([]byte); okk {
 				return json.Unmarshal(values, req)
@@ -194,7 +194,7 @@ func bindJSON[REQ any](ctx *gin.Context, req *REQ) (err error) {
 }
 
 func bindForm[REQ any](ctx *gin.Context, req *REQ) (err error) {
-	if haveEncryptionData(ctx, "body") {
+	if haveEncryptionData(ctx, "Body") {
 		if value, ok := ctx.Get("encryption_data"); ok {
 			if values, okk := value.([]byte); okk {
 				return json.Unmarshal(values, req)
