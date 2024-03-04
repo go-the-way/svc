@@ -12,7 +12,7 @@ var (
 	aesKey    = os.Getenv("AES_KEY")
 )
 
-func Encrypt(plainText []byte) (string, error) {
+func AesEncrypt(plainText []byte) (string, error) {
 	if !aesEnable {
 		return string(plainText), nil
 	}
@@ -28,7 +28,7 @@ func Encrypt(plainText []byte) (string, error) {
 	return base64.StdEncoding.EncodeToString(cipherText[:]), nil
 }
 
-func Decrypt(cipherBytes []byte) ([]byte, error) {
+func AesDecrypt(cipherBytes []byte) ([]byte, error) {
 	if !aesEnable {
 		return cipherBytes, nil
 	}
