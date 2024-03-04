@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	aesEnable = os.Getenv("AES_ENABLE") == "F"
+	aesEnable = os.Getenv("AES_ENABLE") == "T"
 	aesKey    = os.Getenv("AES_KEY")
 )
 
