@@ -5,16 +5,14 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 )
 
-func Encryption() gin.HandlerFunc {
-	encryptEnable := os.Getenv("ENCRYPT_ENABLE") == "T"
+func Decryption() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		if encryptEnable {
+		if DecryptEnable {
 			encryption := strings.EqualFold(ctx.Request.Header.Get("Encryption"), "Yes")
 			if encryption {
 				if ctx.Request.Method == http.MethodGet {

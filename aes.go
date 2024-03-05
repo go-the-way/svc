@@ -4,19 +4,10 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"encoding/base64"
-	"os"
-)
-
-var (
-	aesEnable = os.Getenv("AES_ENABLE") == "T"
-	aesKey    = os.Getenv("AES_KEY")
 )
 
 func AesEncrypt(plainText []byte) (string, error) {
-	if !aesEnable {
-		return string(plainText), nil
-	}
-	key := []byte(aesKey)
+	key := []byte(AesKey)
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return "", err
@@ -28,11 +19,8 @@ func AesEncrypt(plainText []byte) (string, error) {
 }
 
 func AesDecrypt(cipherBytes []byte) ([]byte, error) {
-	if !aesEnable {
-		return cipherBytes, nil
-	}
 	decodeText, err := base64.StdEncoding.DecodeString(string(cipherBytes))
-	key := []byte(aesKey)
+	key := []byte(AesKey)
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err

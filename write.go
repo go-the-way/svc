@@ -39,7 +39,7 @@ func WriteJSON(ctx *gin.Context, code, httpCode int, msg string, err error, data
 			}
 		}
 	}
-	encrypt := len(encrypts) > 0 && encrypts[0]
+	encrypt := len(encrypts) > 0 && encrypts[0] && EncryptEnable
 	if encrypt {
 		marshalBytes, _ := json.Marshal(dd)
 		encryptStr, _ := AesEncrypt(marshalBytes)

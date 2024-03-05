@@ -98,10 +98,10 @@ func do[REQ, RESP any](ctx *gin.Context, req REQ, bindFunc bindFunc[REQ], valida
 				// ignored
 				// no return everything
 			} else {
-				WriteServerErrorJSON(ctx, err)
+				WriteServerErrorJSON(ctx, err, encrypts...)
 			}
 		} else {
-			encrypt := len(encrypts) > 0 && encrypts[0]
+			encrypt := len(encrypts) > 0 && encrypts[0] && EncryptEnable
 			if respType := reflect.TypeOf(resp); respType != nil {
 				respTypeKind := respType.Kind()
 				switch {
@@ -114,7 +114,7 @@ func do[REQ, RESP any](ctx *gin.Context, req REQ, bindFunc bindFunc[REQ], valida
 						ctx.String(http.StatusOK, respStr)
 					}
 				default:
-					WriteSuccessJSON(ctx, resp, encrypts...)
+					WriteSuccessJSON(ctx, resp, encrypt)
 				}
 			}
 		}
