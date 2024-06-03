@@ -23,3 +23,4 @@ go.work
 .idea
 *_test.go
 .DS_store
+main

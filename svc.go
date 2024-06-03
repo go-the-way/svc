@@ -24,6 +24,22 @@ import (
 	"github.com/go-the-way/validator"
 )
 
+func Uri(ctx *gin.Context, thenFunc noReqNoRespThenFunc, encrypts ...bool) {
+	do[noReq, noResp](ctx, noReq{}, nil, nil, nil, noReqNoRespThenFuncWrap(thenFunc), encrypts...)
+}
+
+func UriReq[REQ any](ctx *gin.Context, req REQ, thenFunc reqNoRespThenFunc[REQ], encrypts ...bool) {
+	do[REQ, noResp](ctx, req, bindUri[REQ], validate[REQ], check[REQ], reqNoRespThenFuncWrap[REQ](thenFunc), encrypts...)
+}
+
+func UriResp[RESP any](ctx *gin.Context, thenFunc noReqRespThenFunc[RESP], encrypts ...bool) {
+	do[noReq, RESP](ctx, noReq{}, nil, nil, nil, noReqRespThenFuncWrap[RESP](thenFunc), encrypts...)
+}
+
+func UriReqResp[REQ, RESP any](ctx *gin.Context, req REQ, thenFunc thenFunc[REQ, RESP], encrypts ...bool) {
+	do[REQ, RESP](ctx, req, bindUri[REQ], validate[REQ], check[REQ], thenFunc, encrypts...)
+}
+
 func Query(ctx *gin.Context, thenFunc noReqNoRespThenFunc, encrypts ...bool) {
 	do[noReq, noResp](ctx, noReq{}, nil, nil, nil, noReqNoRespThenFuncWrap(thenFunc), encrypts...)
 }
@@ -169,6 +185,10 @@ func haveEncryptionData(ctx *gin.Context, dataType string) bool {
 		}
 	}
 	return b1 && b2
+}
+
+func bindUri[REQ any](ctx *gin.Context, req *REQ) (err error) {
+	return ctx.ShouldBindUri(req)
 }
 
 func bindQuery[REQ any](ctx *gin.Context, req *REQ) (err error) {
