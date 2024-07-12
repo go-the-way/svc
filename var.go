@@ -16,5 +16,6 @@ import "os"
 var (
 	EncryptEnable = os.Getenv("ENCRYPT_ENABLE") == "T"
 	DecryptEnable = os.Getenv("DECRYPT_ENABLE") == "T"
-	AesKey        = os.Getenv("AES_KEY")
 )
+
+func AesKey() string { return os.Getenv("AES_KEY") }

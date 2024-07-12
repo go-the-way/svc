@@ -7,7 +7,7 @@ import (
 )
 
 func AesEncrypt(plainText []byte) (string, error) {
-	key := []byte(AesKey)
+	key := []byte(AesKey())
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return "", err
@@ -20,7 +20,7 @@ func AesEncrypt(plainText []byte) (string, error) {
 
 func AesDecrypt(cipherBytes []byte) ([]byte, error) {
 	decodeText, err := base64.StdEncoding.DecodeString(string(cipherBytes))
-	key := []byte(AesKey)
+	key := []byte(AesKey())
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
