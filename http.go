@@ -26,17 +26,20 @@ type HttpResponse[T any] struct {
 	Code uint   `json:"code"`
 	Msg  string `json:"msg"`
 	Data T      `json:"data"`
+
+	rawResponse *http.Response `json:"-"`
 }
 
-func HttpDo[REQ, RESP any](method, url string, header map[string]string, req REQ, options ...func(client *http.Client)) (resp0 *http.Response, resp HttpResponse[RESP], err error) {
+func HttpDo[REQ, RESP any](method, url string, header map[string]string, req REQ, options ...func(client *http.Client)) (resp0 HttpResponse[RESP], resp RESP, err error) {
 	if header == nil {
 		header = make(map[string]string)
 	}
 	header["Content-Type"] = "application/json"
 	var (
-		by   io.Reader
-		req0 *http.Request
-		buf  []byte
+		by      io.Reader
+		req0    *http.Request
+		rawResp *http.Response
+		buf     []byte
 	)
 	if reflect.ValueOf(req).IsValid() {
 		if buf, err = json.Marshal(req); err != nil {
@@ -69,22 +72,23 @@ func HttpDo[REQ, RESP any](method, url string, header map[string]string, req REQ
 			}
 		}
 	}
-	if resp0, err = client.Do(req0); err != nil {
+	if rawResp, err = client.Do(req0); err != nil {
 		return
 	}
 	var bodyBuf []byte
-	if bodyBuf, err = io.ReadAll(resp0.Body); err != nil {
+	if bodyBuf, err = io.ReadAll(rawResp.Body); err != nil {
 		return
 	}
 	if len(bodyBuf) <= 0 {
 		err = errors.New("response body is empty")
 		return
 	}
-	if encryption := strings.EqualFold(resp0.Header.Get("Encryption"), "Yes"); encryption && DecryptEnable {
+	if encryption := strings.EqualFold(rawResp.Header.Get("Encryption"), "Yes"); encryption && DecryptEnable {
 		if bodyBuf, err = AesDecrypt(bodyBuf); err != nil {
 			return
 		}
 	}
 	err = json.Unmarshal(bodyBuf, &resp)
+	resp0.rawResponse = rawResp
 	return
 }
