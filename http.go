@@ -88,8 +88,13 @@ func HttpDo[REQ, RESP any](method, url string, header map[string]string, req REQ
 			return
 		}
 	}
-	err = json.Unmarshal(bodyBuf, &resp0)
+	if err = json.Unmarshal(bodyBuf, &resp0); err != nil {
+		return
+	}
 	resp0.rawResponse = rawResp
 	resp = resp0.Data
+	if resp0.Code != http.StatusOK {
+		err = errors.New(resp0.Msg)
+	}
 	return
 }
