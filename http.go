@@ -88,7 +88,8 @@ func HttpDo[REQ, RESP any](method, url string, header map[string]string, req REQ
 			return
 		}
 	}
-	err = json.Unmarshal(bodyBuf, &resp)
+	err = json.Unmarshal(bodyBuf, &resp0)
 	resp0.rawResponse = rawResp
+	resp = resp0.Data
 	return
 }
