@@ -17,8 +17,4 @@ var engine = gin.New()
 
 func GetApp(middlewares ...gin.HandlerFunc) *gin.Engine { engine.Use(middlewares...); return engine }
 
-func GetAppWithGroup(prefix string, middlewares ...gin.HandlerFunc) *gin.RouterGroup {
-	g := GetApp().Group(prefix)
-	g.Use(middlewares...)
-	return g
-}
+func GetAppWithGroup(prefix string) *gin.RouterGroup { return GetApp().Group(prefix) }
