@@ -20,6 +20,55 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type WebTryOption struct {
+	FsName             string
+	ApiRoutePrefix     string
+	IndexHtmlName      string
+	StatusNotFoundFunc func(err error, ctx *gin.Context)
+}
+
+func WebTry(fs embed.FS, configure ...func(opt *WebTryOption)) func(ctx *gin.Context) {
+	wto := WebTryOption{
+		"www",
+		"/api",
+		"/index.html",
+		func(err error, ctx *gin.Context) { _ = ctx.AbortWithError(http.StatusNotFound, err) },
+	}
+	return func(ctx *gin.Context) {
+		if len(configure) > 0 {
+			if conf := configure[0]; conf != nil {
+				conf(&wto)
+			}
+		}
+		ctx.Next()
+		w := ctx.Writer
+		if w.Status() == http.StatusNotFound {
+			filePath := ctx.Request.RequestURI
+			if !strings.HasPrefix(filePath, wto.ApiRoutePrefix) {
+				if filePath == "/" {
+					// override to index.html
+					filePath = wto.IndexHtmlName
+				}
+				// index.html index.css index.js index.svg index.ico index.png
+				if strings.Contains(filePath, ".") {
+					// 静态资源
+				} else {
+					filePath = wto.IndexHtmlName
+				}
+				buf, err, contentType := fileInfo(fs, wto.FsName, filePath)
+				if err != nil {
+					wto.StatusNotFoundFunc(err, ctx)
+					return
+				}
+				w.Header().Add("Content-Type", contentType)
+				w.WriteHeader(http.StatusOK)
+				_, _ = w.Write(buf)
+				w.Flush()
+			}
+		}
+	}
+}
+
 var extMap = map[string]string{
 	"html": "text/html",
 	"css":  "text/css",
@@ -40,35 +89,4 @@ func fileInfo(fs embed.FS, fsName, path string) (buf []byte, err error, contentT
 	contentType = extMap[fileExt]
 	buf, err = fs.ReadFile(fsName + path)
 	return
-}
-
-func WebTry(fs embed.FS, fsName string) func(ctx *gin.Context) {
-	return func(ctx *gin.Context) {
-		ctx.Next()
-		w := ctx.Writer
-		if w.Status() == http.StatusNotFound {
-			filePath := ctx.Request.RequestURI
-			if !strings.HasPrefix(filePath, "/api") {
-				if filePath == "/" {
-					// override to index.html
-					filePath = "/index.html"
-				}
-				// index.html index.css index.js index.svg index.ico index.png
-				if strings.Contains(filePath, ".") {
-					// 静态资源
-				} else {
-					filePath = "/index.html"
-				}
-				buf, err, contentType := fileInfo(fs, fsName, filePath)
-				if err != nil {
-					_ = ctx.AbortWithError(http.StatusNotFound, err)
-					return
-				}
-				w.Header().Add("Content-Type", contentType)
-				w.WriteHeader(http.StatusOK)
-				_, _ = w.Write(buf)
-				w.Flush()
-			}
-		}
-	}
 }
