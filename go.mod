@@ -1,4 +1,4 @@
-module github.com/rwscode/svc
+module github.com/go-the-way/svc
 
 go 1.18
 
