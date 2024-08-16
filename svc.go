@@ -96,7 +96,7 @@ func do[REQ, RESP any](ctx *gin.Context, req REQ, bindFunc bindFunc[REQ], valida
 		}
 	}
 	if fn := validateFunc; fn != nil {
-		if err := fn(&req); err != nil {
+		if err := fn(ctx, &req); err != nil {
 			WriteBindError(ctx, err, encrypts...)
 			return
 		}
@@ -142,7 +142,7 @@ type (
 	noResp struct{}
 
 	bindFunc[REQ any]       func(ctx *gin.Context, req *REQ) (err error)
-	validateFunc[REQ any]   func(req *REQ) (err error)
+	validateFunc[REQ any]   func(ctx *gin.Context, req *REQ) (err error)
 	checkFunc[REQ any]      func(req *REQ) (err error)
 	thenFunc[REQ, RESP any] func(req REQ) (resp RESP, err error)
 
@@ -224,10 +224,30 @@ func bindForm[REQ any](ctx *gin.Context, req *REQ) (err error) {
 	return ctx.ShouldBindWith(req, binding.Form)
 }
 
-func validate[REQ any](req *REQ) (err error) {
-	v := validator.New(req)
+var (
+	validatorLangSupport []string
+	validatorLangFunc    = func(ctx *gin.Context) (lang string) {
+		if lang = ctx.GetHeader("Lang"); lang != "" {
+			return
+		}
+		if lang = ctx.GetHeader("lang"); lang != "" {
+			return
+		}
+		return
+	}
+)
+
+func ValidatorLangSupport(lang ...string)                       { validatorLangSupport = lang }
+func ValidatorLangFunc(fn func(ctx *gin.Context) (lang string)) { validatorLangFunc = fn }
+
+func validate[REQ any](ctx *gin.Context, req *REQ) (err error) {
+	v := validator.New(req).Lang(validatorLangSupport...)
+	currentLang := ""
+	if len(validatorLangSupport) > 0 && validatorLangFunc != nil {
+		currentLang = validatorLangFunc(ctx)
+	}
 	if vr := v.Validate(); !vr.Passed {
-		err = errors.New(vr.Messages())
+		err = errors.New(vr.Messages(currentLang))
 	}
 	return
 }

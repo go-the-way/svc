@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/gin-gonic/gin v1.9.1
-	github.com/go-the-way/validator v1.1.1
+	github.com/go-the-way/validator v1.2.0
 	gorm.io/gorm v1.25.7
 )
 
