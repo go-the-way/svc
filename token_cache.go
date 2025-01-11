@@ -33,7 +33,7 @@ type (
 	}
 )
 
-func newMemTokenCache[T any]() tokenCache[T] {
+func MemTokenCache[T any]() tokenCache[T] {
 	return newMemTokenCacheTokenHeader[T]("Token")
 }
 
