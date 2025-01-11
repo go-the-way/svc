@@ -1,4 +1,4 @@
-// Copyright 2024 svc Author. All Rights Reserved.
+// Copyright 2025 svc Author. All Rights Reserved.
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -13,9 +13,7 @@ package svc
 
 import "io"
 
-var (
-	ErrNoReturn = io.ErrNoProgress
-)
+var ErrNoReturn = io.ErrNoProgress
 
 type Error struct {
 	error          string
