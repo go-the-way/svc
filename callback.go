@@ -11,41 +11,6 @@
 
 package svc
 
-import (
-	"gorm.io/gorm"
-)
-
-type (
-	PageReq struct {
-		Limit int `form:"limit"`
-		Page  int `form:"page"`
-	}
-	PageResp[T any] struct {
-		Total int64 `json:"total"`
-		List  []T   `json:"list"`
-	}
-)
-
-func Pagination(db *gorm.DB, req PageReq, count *int64, list any) (err error) {
-	if err = db.Count(count).Error; err != nil {
-		return
-	}
-	if *count == 0 {
-		return
-	}
-	if req.Limit == 0 {
-		req.Limit = 10
-	}
-
-	if req.Page == 0 {
-		req.Page = 1
-	}
-
-	err = db.Offset(req.Limit * (req.Page - 1)).Limit(req.Limit).Find(list).Error
-
-	return
-}
-
 func Callback(err0 error, fns ...func()) (err error) {
 	if err = err0; err != nil {
 		return
@@ -150,4 +115,9 @@ func Callback3Err[T1, T2, T3 any](err0 error, t1 T1, t2 T2, t3 T3, fns ...func(t
 	return
 }
 
-func Return[T any](t T, err0 error) (T, error) { return t, err0 }
+func TransformCallback[T any](t *T, callback func(t T)) func(ptr *T) {
+	if callback != nil {
+		return nil
+	}
+	return func(ptr *T) { callback(*t) }
+}
