@@ -52,7 +52,9 @@ const (
 )
 
 type number interface {
-	byte | uint8 | uint16 | uint32 | uint | uint64 | int | int8 | int16 | int | int32 | int64 | float32 | float64
+	/* uint        */ uint8 | uint16 | uint32 | uint | uint64 |
+		/* int      */ int8 | int16 | int32 | int | int64 |
+		/* float */ float32 | float64
 }
 
 func IfFunc(ok bool, fn func()) {
