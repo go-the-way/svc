@@ -13,6 +13,7 @@ package svc
 
 import (
 	"bytes"
+	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"io"
@@ -22,15 +23,45 @@ import (
 	"time"
 )
 
-type HttpResponse[T any] struct {
-	Code uint   `json:"code"`
-	Msg  string `json:"msg"`
-	Data T      `json:"data"`
+type (
+	HttpClientOpt struct {
+		Timeout            time.Duration
+		InsecureSkipVerify bool
+	}
+	HttpResponse[T any] struct {
+		Code uint   `json:"code"`
+		Msg  string `json:"msg"`
+		Data T      `json:"data"`
 
-	rawResponse *http.Response `json:"-"`
+		rawResponse *http.Response `json:"-"`
+	}
+)
+
+func NewHttpClient(opts ...func(opt *HttpClientOpt)) *http.Client {
+	defOpt := &HttpClientOpt{
+		Timeout:            time.Second * 3,
+		InsecureSkipVerify: true,
+	}
+
+	if len(opts) > 0 {
+		for _, opt := range opts {
+			if opt != nil {
+				opt(defOpt)
+			}
+		}
+	}
+
+	return &http.Client{
+		Timeout: defOpt.Timeout,
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: defOpt.InsecureSkipVerify,
+			},
+		},
+	}
 }
 
-func HttpDo[REQ, RESP any](method, url string, header map[string]string, req REQ, options ...func(client *http.Client)) (resp0 HttpResponse[RESP], resp RESP, err error) {
+func HttpDo[REQ, RESP any](method, url string, header map[string]string, req REQ, opts ...func(client *http.Client)) (resp0 HttpResponse[RESP], resp RESP, err error) {
 	if header == nil {
 		header = make(map[string]string)
 	}
@@ -64,14 +95,17 @@ func HttpDo[REQ, RESP any](method, url string, header map[string]string, req REQ
 			req0.Header.Set(k, v)
 		}
 	}
-	client := &http.Client{Timeout: time.Second * 10}
-	if len(options) > 0 {
-		for _, opt := range options {
+
+	client := NewHttpClient(func(opt *HttpClientOpt) { opt.Timeout = time.Second * 10 })
+
+	if len(opts) > 0 {
+		for _, opt := range opts {
 			if opt != nil {
 				opt(client)
 			}
 		}
 	}
+
 	if rawResp, err = client.Do(req0); err != nil {
 		return
 	}

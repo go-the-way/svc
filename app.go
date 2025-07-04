@@ -13,8 +13,14 @@ package svc
 
 import "github.com/gin-gonic/gin"
 
-var engine = gin.New()
+var engine *gin.Engine
 
-func GetApp(middlewares ...gin.HandlerFunc) *gin.Engine { engine.Use(middlewares...); return engine }
+func init0() *gin.Engine {
+	if engine == nil {
+		engine = gin.New()
+	}
+	return engine
+}
 
-func GetAppWithGroup(prefix string) *gin.RouterGroup { return GetApp().Group(prefix) }
+func GetApp(middlewares ...gin.HandlerFunc) *gin.Engine { init0().Use(middlewares...); return engine }
+func GetAppWithGroup(prefix string) *gin.RouterGroup    { return GetApp().Group(prefix) }

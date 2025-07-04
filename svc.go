@@ -226,15 +226,7 @@ func bindForm[REQ any](ctx *gin.Context, req *REQ) (err error) {
 
 var (
 	validatorLangSupport []string
-	validatorLangFunc    = func(ctx *gin.Context) (lang string) {
-		if lang = ctx.GetHeader("Lang"); lang != "" {
-			return
-		}
-		if lang = ctx.GetHeader("lang"); lang != "" {
-			return
-		}
-		return
-	}
+	validatorLangFunc    = func(ctx *gin.Context) (lang string) { return ctx.GetHeader("Lang") }
 )
 
 func ValidatorLangSupport(lang ...string)                       { validatorLangSupport = lang }
