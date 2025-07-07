@@ -23,6 +23,10 @@ import (
 )
 
 var (
+	_ setter = formSource(nil)
+
+	emptyField = reflect.StructField{}
+
 	errUnknownType = errors.New("unknown type")
 
 	// errConvertMapStringSlice can not convert to map[string][]string
@@ -32,19 +36,9 @@ var (
 	errConvertToMapString = errors.New("can not convert to map of strings")
 )
 
-func mapURI(ptr any, m map[string][]string) error {
-	return mapFormByTag(ptr, m, "uri")
-}
-
 func mapForm(ptr any, form map[string][]string) error {
 	return mapFormByTag(ptr, form, "form")
 }
-
-func MapFormWithTag(ptr any, form map[string][]string, tag string) error {
-	return mapFormByTag(ptr, form, tag)
-}
-
-var emptyField = reflect.StructField{}
 
 func mapFormByTag(ptr any, form map[string][]string, tag string) error {
 	// Check if ptr is a map
@@ -71,8 +65,6 @@ type setter interface {
 }
 
 type formSource map[string][]string
-
-var _ setter = formSource(nil)
 
 // TrySet tries to set a value by request's form source (like map[string][]string)
 func (form formSource) TrySet(value reflect.Value, field reflect.StructField, tagValue string, opt setOptions) (isSet bool, err error) {

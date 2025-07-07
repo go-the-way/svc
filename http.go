@@ -61,7 +61,7 @@ func NewHttpClient(opts ...func(opt *HttpClientOpt)) *http.Client {
 	}
 }
 
-func HttpDo[REQ, RESP any](method, url string, header map[string]string, req REQ, opts ...func(client *http.Client)) (resp0 HttpResponse[RESP], resp RESP, err error) {
+func Http[REQ, RESP any](method, url string, header map[string]string, req REQ, opts ...func(client *http.Client)) (resp0 HttpResponse[RESP], resp RESP, err error) {
 	if header == nil {
 		header = make(map[string]string)
 	}

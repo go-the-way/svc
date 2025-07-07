@@ -18,7 +18,7 @@ type Plugin interface{ Plug(engine *gin.Engine) }
 func Plugins(plugin ...Plugin) {
 	for _, plug := range plugin {
 		if plug != nil {
-			plug.Plug(engine)
+			plug.Plug(init0())
 		}
 	}
 }

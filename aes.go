@@ -15,7 +15,15 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"encoding/base64"
+	"os"
 )
+
+var (
+	EncryptEnable = os.Getenv("ENCRYPT_ENABLE") == "T"
+	DecryptEnable = os.Getenv("DECRYPT_ENABLE") == "T"
+)
+
+func AesKey() string { return os.Getenv("AES_KEY") }
 
 func AesEncrypt(plainText []byte) (string, error) {
 	key := []byte(AesKey())
