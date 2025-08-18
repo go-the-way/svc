@@ -67,9 +67,7 @@ func (m *memTokenCache[T]) Have(token string) (have bool) {
 	return
 }
 
-func (m *memTokenCache[T]) ctx0(ctx *gin.Context) string {
-	return ctx.GetHeader("Token")
-}
+func (m *memTokenCache[T]) ctx0(ctx *gin.Context) string { return ctx.GetHeader(m.tokenHeader) }
 
 func (m *memTokenCache[T]) HaveCtx(ctx *gin.Context) (have bool) { return m.Have(m.ctx0(ctx)) }
 
